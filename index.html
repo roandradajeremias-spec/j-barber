@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J BARBER - TURNOS REALTIME</title>
+    <title>J BARBER - TURNOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;600&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -16,15 +16,15 @@
         label { display: block; text-align: left; margin-left: 8%; margin-top: 20px; font-weight: 600; text-transform: uppercase; color: #fff; font-size: 13px; letter-spacing: 1px; }
         input, select { width: 85%; padding: 16px; margin-top: 5px; border: 2px solid #333; background-color: #1a1a1a; color: white; font-size: 16px; font-family: 'Oswald', sans-serif; border-radius: 4px; outline: none; }
         button { font-family: 'Anton', sans-serif; background-color: #fff; color: #000; border: none; width: 85%; padding: 20px; font-size: 20px; cursor: pointer; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 5px 5px 0px #444; transition: 0.2s; }
-        button:hover:not(:disabled) { background-color: #000; color: #fff; border: 2px solid #fff; }
+        button:hover:not(:disabled) { background-color: #000; color: #fff; border: 2px solid #fff; transform: translate(2px, 2px); box-shadow: 2px 2px 0px #444; }
         button:disabled { background-color: #444; color: #888; cursor: not-allowed; box-shadow: none; }
         .footer { margin-top: 50px; font-size: 12px; color: #333; letter-spacing: 2px; text-transform: uppercase; }
-        #error-turno { color: #ff4444; font-size: 14px; margin-top: 15px; display: none; font-weight: bold; }
+        #error-turno { color: #ff4444; font-size: 14px; margin-top: 15px; display: none; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="foto.jpg" alt="J BARBER" class="logo-completo-img" onerror="this.src='foto.jpeg'">
+        <img src="logo.jpg" alt="J BARBER" class="logo-completo-img">
 
         <label>Tu Nombre:</label>
         <input type="text" id="nombre" placeholder="ESCRIBÍ TU NOMBRE">
@@ -55,7 +55,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (Pegá tus datos aquí)
+        // CONFIGURACIÓN DE FIREBASE (PEGÁ TUS DATOS ACÁ)
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_PROYECTO.firebaseapp.com",
@@ -76,11 +76,12 @@
             const btn = document.getElementById('btn-agendar');
             const error = document.getElementById('error-turno');
 
-            if (!fecha) return;
+            if (!fecha || !hora) return;
 
-            // Buscamos en la base de datos si el turno existe
             const turnoId = fecha + "_" + hora.replace(":", "");
-            database.ref('turnos/' + turnoId).once('value', (snapshot) => {
+            
+            // Verificamos si existe en la base de datos
+            database.ref('turnos/' + turnoId).once('value').then((snapshot) => {
                 if (snapshot.exists()) {
                     btn.disabled = true;
                     error.style.display = "block";
@@ -88,6 +89,8 @@
                     btn.disabled = false;
                     error.style.display = "none";
                 }
+            }).catch((err) => {
+                console.error("Error de Firebase:", err);
             });
         }
 
@@ -99,21 +102,24 @@
             const miTelefono = "543416498131";
 
             if (!nombre || !fecha) {
-                alert("Completá todos los datos, fiera.");
+                alert("Che fiera, completá tu nombre y la fecha.");
                 return;
             }
 
             const turnoId = fecha + "_" + hora.replace(":", "");
 
-            // Guardar en Firebase
+            // Guardar en Firebase y luego mandar WhatsApp
             database.ref('turnos/' + turnoId).set({
                 cliente: nombre,
-                servicio: servicio
+                servicio: servicio,
+                timestamp: Date.now()
             }).then(() => {
-                // Si se guardó bien, mandamos el WhatsApp
                 const mensaje = `¡Hola Jere! Quiero un turno:%0A⬛ *Nombre:* ${nombre}%0A✂️ *Corte:* ${servicio}%0A📅 *Fecha:* ${fecha}%0A⏰ *Hora:* ${hora}hs`;
                 window.open(`https://wa.me/${miTelefono}?text=${mensaje}`, '_blank');
                 verificarTurno();
+            }).catch((err) => {
+                alert("Error al guardar el turno. Revisá las Reglas en Firebase.");
+                console.error(err);
             });
         }
     </script>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J BARBER - TURNOS REALTIME</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;600&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <style>
+        body { font-family: 'Oswald', sans-serif; background-color: #000; color: #fff; text-align: center; padding: 20px; margin: 0; background-image: url('https://www.transparenttextures.com/patterns/dark-dotted-2.png'); }
+        .container { background: rgba(10, 10, 10, 0.98); padding: 30px 20px; border: 4px solid #fff; max-width: 380px; margin: 20px auto; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.1); border-radius: 5px; }
+        .logo-completo-img { width: 95%; height: auto; margin-bottom: 25px; filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.4)); }
+        label { display: block; text-align: left; margin-left: 8%; margin-top: 20px; font-weight: 600; text-transform: uppercase; color: #fff; font-size: 13px; letter-spacing: 1px; }
+        input, select { width: 85%; padding: 16px; margin-top: 5px; border: 2px solid #333; background-color: #1a1a1a; color: white; font-size: 16px; font-family: 'Oswald', sans-serif; border-radius: 4px; outline: none; }
+        button { font-family: 'Anton', sans-serif; background-color: #fff; color: #000; border: none; width: 85%; padding: 20px; font-size: 20px; cursor: pointer; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 5px 5px 0px #444; transition: 0.2s; }
+        button:hover:not(:disabled) { background-color: #000; color: #fff; border: 2px solid #fff; }
+        button:disabled { background-color: #444; color: #888; cursor: not-allowed; box-shadow: none; }
+        .footer { margin-top: 50px; font-size: 12px; color: #333; letter-spacing: 2px; text-transform: uppercase; }
+        #error-turno { color: #ff4444; font-size: 14px; margin-top: 15px; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="foto.jpg" alt="J BARBER" class="logo-completo-img" onerror="this.src='foto.jpeg'">
+
+        <label>Tu Nombre:</label>
+        <input type="text" id="nombre" placeholder="ESCRIBÍ TU NOMBRE">
+        
+        <label>Servicio:</label>
+        <select id="servicio">
+            <option value="CORTE">CORTE</option>
+            <option value="CORTE CON DISEÑO">CORTE CON DISEÑO</option>
+        </select>
+
+        <label>Día:</label>
+        <input type="date" id="fecha" onchange="verificarTurno()">
+
+        <label>Hora:</label>
+        <select id="hora" onchange="verificarTurno()">
+            <option value="09:00">09:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="13:00">01:00 PM</option>
+            <option value="15:00">03:00 PM</option>
+            <option value="17:00">05:00 PM</option>
+            <option value="19:00">07:00 PM</option>
+        </select>
+
+        <p id="error-turno">⚠️ ESTE TURNO YA ESTÁ RESERVADO</p>
+
+        <button id="btn-agendar" onclick="reservar()">RESERVAR TURNO</button>
+        <div class="footer">J BARBER • ROSARIO • ARGENTINA</div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE FIREBASE (Pegá tus datos aquí)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            databaseURL: "https://TU_PROYECTO.firebaseio.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "TU_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function verificarTurno() {
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+            const btn = document.getElementById('btn-agendar');
+            const error = document.getElementById('error-turno');
+
+            if (!fecha) return;
+
+            // Buscamos en la base de datos si el turno existe
+            const turnoId = fecha + "_" + hora.replace(":", "");
+            database.ref('turnos/' + turnoId).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    btn.disabled = true;
+                    error.style.display = "block";
+                } else {
+                    btn.disabled = false;
+                    error.style.display = "none";
+                }
+            });
+        }
+
+        function reservar() {
+            const nombre = document.getElementById('nombre').value;
+            const servicio = document.getElementById('servicio').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+            const miTelefono = "543416498131";
+
+            if (!nombre || !fecha) {
+                alert("Completá todos los datos, fiera.");
+                return;
+            }
+
+            const turnoId = fecha + "_" + hora.replace(":", "");
+
+            // Guardar en Firebase
+            database.ref('turnos/' + turnoId).set({
+                cliente: nombre,
+                servicio: servicio
+            }).then(() => {
+                // Si se guardó bien, mandamos el WhatsApp
+                const mensaje = `¡Hola Jere! Quiero un turno:%0A⬛ *Nombre:* ${nombre}%0A✂️ *Corte:* ${servicio}%0A📅 *Fecha:* ${fecha}%0A⏰ *Hora:* ${hora}hs`;
+                window.open(`https://wa.me/${miTelefono}?text=${mensaje}`, '_blank');
+                verificarTurno();
+            });
+        }
+    </script>
+</body>
+</html>

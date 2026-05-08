@@ -6,15 +6,82 @@
     <title>J BARBER - TURNOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Oswald', sans-serif; background-color: #000; color: #fff; text-align: center; padding: 20px; margin: 0; background-image: url('https://www.transparenttextures.com/patterns/dark-dotted-2.png'); }
-        .container { background: rgba(10, 10, 10, 0.98); padding: 30px 20px; border: 4px solid #fff; max-width: 380px; margin: 20px auto; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.1); border-radius: 5px; }
-        /* La clase para tu foto */
-        .logo-completo-img { width: 95%; height: auto; margin-bottom: 25px; filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.4)); }
-        label { display: block; text-align: left; margin-left: 8%; margin-top: 20px; font-weight: 600; text-transform: uppercase; color: #fff; font-size: 13px; letter-spacing: 1px; }
-        input, select { width: 85%; padding: 16px; margin-top: 5px; border: 2px solid #333; background-color: #1a1a1a; color: white; font-size: 16px; font-family: 'Oswald', sans-serif; border-radius: 4px; outline: none; }
-        button { font-family: 'Anton', sans-serif; background-color: #fff; color: #000; border: none; width: 85%; padding: 20px; font-size: 20px; cursor: pointer; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 5px 5px 0px #444; transition: 0.2s; }
-        button:hover { background-color: #000; color: #fff; border: 2px solid #fff; transform: translate(2px, 2px); box-shadow: 2px 2px 0px #444; }
-        .footer { margin-top: 50px; font-size: 12px; color: #333; letter-spacing: 2px; text-transform: uppercase; }
+        body { 
+            font-family: 'Oswald', sans-serif; 
+            background-color: #000; 
+            color: #fff; 
+            text-align: center; 
+            padding: 20px; 
+            margin: 0; 
+            background-image: url('https://www.transparenttextures.com/patterns/dark-dotted-2.png'); 
+        }
+        .container { 
+            background: rgba(10, 10, 10, 0.98); 
+            padding: 30px 20px; 
+            border: 4px solid #fff; 
+            max-width: 380px; 
+            margin: 20px auto; 
+            box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.1); 
+            border-radius: 5px; 
+        }
+        .logo-completo-img { 
+            width: 95%; 
+            height: auto; 
+            margin-bottom: 25px; 
+            filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.4)); 
+        }
+        label { 
+            display: block; 
+            text-align: left; 
+            margin-left: 8%; 
+            margin-top: 20px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            color: #fff; 
+            font-size: 13px; 
+            letter-spacing: 1px; 
+        }
+        input, select { 
+            width: 85%; 
+            padding: 16px; 
+            margin-top: 5px; 
+            border: 2px solid #333; 
+            background-color: #1a1a1a; 
+            color: white; 
+            font-size: 16px; 
+            font-family: 'Oswald', sans-serif; 
+            border-radius: 4px; 
+            outline: none; 
+        }
+        button { 
+            font-family: 'Anton', sans-serif; 
+            background-color: #fff; 
+            color: #000; 
+            border: none; 
+            width: 85%; 
+            padding: 20px; 
+            font-size: 20px; 
+            cursor: pointer; 
+            margin-top: 40px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            box-shadow: 5px 5px 0px #444; 
+            transition: 0.2s; 
+        }
+        button:hover { 
+            background-color: #000; 
+            color: #fff; 
+            border: 2px solid #fff; 
+            transform: translate(2px, 2px); 
+            box-shadow: 2px 2px 0px #444; 
+        }
+        .footer { 
+            margin-top: 50px; 
+            font-size: 12px; 
+            color: #333; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+        }
     </style>
 </head>
 <body>
@@ -51,14 +118,26 @@
 
     <script>
         function enviarWhatsapp() {
+            // Tu número de contacto configurado
             const miTelefono = "543416498131"; 
+            
             const nombre = document.getElementById('nombre').value;
             const servicio = document.getElementById('servicio').value;
             const fecha = document.getElementById('fecha').value;
             const hora = document.getElementById('hora').value;
-            if(!nombre || !fecha) { alert("Che, fiera, poné tu nombre y la fecha."); return; }
+
+            // Validación simple para que no manden turnos en blanco
+            if(!nombre || !fecha) { 
+                alert("Che, fiera, poné tu nombre y la fecha."); 
+                return; 
+            }
+
+            // Armado del mensaje para WhatsApp
             const mensaje = `¡Hola Jere! Quiero un turno:%0A⬛ *Nombre:* ${nombre}%0A✂️ *Corte:* ${servicio}%0A📅 *Fecha:* ${fecha}%0A⏰ *Hora:* ${hora}hs`;
-            window.open(`https://wa.me/${miTelefono}?text=${mensaje}`, '_blank');
+            
+            // Redirección directa sin verificar duplicados
+            const url = `https://wa.me/${miTelefono}?text=${mensaje}`;
+            window.open(url, '_blank');
         }
     </script>
 </body>
